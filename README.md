@@ -1,7 +1,3 @@
-Here is a README.md file for your repository, based on the logic of main.py:
-
----
-
 # Keylogger Python
 
 A simple keylogger in Python that records keystrokes, saves them to a file, and sends the log as an email attachment using SendGrid.
@@ -69,7 +65,3 @@ python main.py
 ## Disclaimer
 
 This tool is intended for educational purposes only. Do **not** use it to log keystrokes without the user's explicit consent. Unauthorized use may violate local laws and ethical guidelines.
-
----
-
-Let me know if you want to add usage screenshots or more details!
